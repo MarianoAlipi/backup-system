@@ -2,8 +2,9 @@
  * This program displays the names of all files in the current directory.
  */
 
-#include <dirent.h> 
-#include <stdio.h> 
+#include <dirent.h>
+
+#include "FileVector.h"
 
 /*
  * dir->d_type values:
