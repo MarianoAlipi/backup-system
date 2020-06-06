@@ -11,21 +11,26 @@
 #include <string.h>
 #include <time.h>
 
+// The File structure holding the name and modification time.
 struct File {
     char name[256]; // Filename (a path relative to .)
     time_t modTime; // Modification time
 };
 
+// The Vector structure to keep track of files.
 struct Vector {
     int size;
     struct File *data;
 };
 
+// A function to initialize the vector.
 void initVector(struct Vector *v) {
     v->data = malloc(sizeof(struct File));
     v->size = 0;
 }
 
+// A function to add an item to the end of the vector.
+// Returns the resulting size of the vector.
 int push(struct Vector *v, struct File f) {
 
     if (v == NULL) {
@@ -46,6 +51,8 @@ int push(struct Vector *v, struct File f) {
 
 }
 
+// A function to delete an item at index 'index' from the vector.
+// Returns the resulting size of the vector.
 int delete(struct Vector *v, int index) {
 
     if (v == NULL) {
