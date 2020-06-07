@@ -76,6 +76,26 @@ int delete(struct Vector *v, int index) {
 
 }
 
+// A function to set/replace the value of the specified index.
+// Returns 0 if successful, -1 otherwise.
+int set(struct Vector *v, int index, struct File f) {
+
+    if (v == NULL) {
+        printf("ERROR: vector not initialized!\n");
+        return -1;
+    }
+
+    if (index < 0 || index >= v->size) {
+        printf("ERROR: index out of bounds (%d). Size is %d.\n", index, v->size);
+        return -1;
+    }
+
+    v->data[index] = f;
+
+    return 0;
+
+}
+
 // Search for the file with the specified name and return its index in the vector.
 // If the file is not in the vector, return -1.
 // If the vector is not initialized, return -2.
