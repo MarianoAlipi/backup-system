@@ -14,6 +14,8 @@
 #define DELETE_PREFIX "delete:"
 #define MODIFY_PREFIX "modify:"
 
+// Receive the contents of a file from the client and save it in
+// a file named 'file_name'.
 void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
 
     int des_fd, file_read_len;
@@ -23,7 +25,6 @@ void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
         perror("file open error : ");
         return;
     }   
-
 
     while(1) {
         memset(buf, 0x00, MAXBUF);
@@ -148,6 +149,7 @@ int main(int argc, char **argv) {
 
             receiveFile(tmpName, client_sockfd, buf);
             
+        // If it's a 'delete file' instruction...
         } else if (strstr(file_name, DELETE_PREFIX) != NULL) {
 
             char tmpName[256];
@@ -171,12 +173,11 @@ int main(int argc, char **argv) {
             
         }
 
-
-
         close(client_sockfd);
         close(des_fd);
 
     }
+
     close(server_sockfd);
     return 0;
 }
