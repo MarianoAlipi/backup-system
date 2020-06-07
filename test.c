@@ -74,6 +74,9 @@ int main(void) {
                 // The file exists, but check if it has been modified.
                 } else if (index >= 0 && dir->d_type == DT_REG) {
 
+                    // Mark it as checked.
+                    markChecked(&vector, index);
+
                     // Compare the modification times.
                     if (vector.data[index].modTime != file_stat.st_mtime) {
                         // Set the file's new modification time.
@@ -89,6 +92,20 @@ int main(void) {
             }
 
             closedir(d);
+
+            // Detect deleted files.
+            for (int i = 0; i < vector.size; i++) {
+                // The file was not checked.
+                // This means it was not found.
+                if (vector.data[i].checked == 0) {
+                    printf("Deleted file '%s'.\n", vector.data[i].name);
+                    delete(&vector, i);
+                    // Subtract 1 from i so that this index is repeated.
+                    i--;
+                }
+            }
+
+            markAllUnchecked(&vector);
 
             // Wait for 1 second until detecting changes again.
             sleep(1);
