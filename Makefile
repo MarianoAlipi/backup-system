@@ -1,7 +1,7 @@
 build:
-	gcc test.c -o test
+	gcc client.c -o client
 	@echo "Done."
 
 clean:
-	rm test
+	rm client
 	@echo "Done."
