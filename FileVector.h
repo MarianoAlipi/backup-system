@@ -15,6 +15,7 @@
 struct File {
     char name[256]; // Filename (a path relative to .)
     time_t modTime; // Modification time
+    int checked;    // Flag to determine if the file still exists this "round"
 };
 
 // The Vector structure to keep track of files.
@@ -32,6 +33,8 @@ void initVector(struct Vector *v) {
 // A function to add an item to the end of the vector.
 // Returns the resulting size of the vector.
 int push(struct Vector *v, struct File f) {
+
+    f.checked = 1;
 
     if (v == NULL) {
         printf("ERROR: vector not initialized!\n");
@@ -113,6 +116,47 @@ int findByName(struct Vector *v, char name[256]) {
     }
 
     return -1;
+
+}
+
+// Mark all the files as unchecked.
+// This resets the flag 'checked' of every file in the vector.
+// Returns the number of items changed or -1 if a problem was found.
+int markAllUnchecked(struct Vector *v) {
+
+    int i;
+
+    if (v == NULL) {
+        printf("ERROR: vector not initialized!\n");
+        return -1;
+    }
+
+    for (i = 0; i < v->size; i++) {
+        v->data[i].checked = 0;
+    }
+
+    return i;
+}
+
+// Mark the file at the specified index as checked.
+// Returns 0 if successful.
+// Returns -1 if out of bounds.
+// Returns -2 if vector is not initialized.
+int markChecked(struct Vector *v, int index) {
+
+    if (v == NULL) {
+        printf("ERROR: vector not initialized!\n");
+        return -2;
+    }
+
+    if (index < 0 || index >= v->size) {
+        printf("ERROR: index out of bounds (%d). Size is %d.\n", index, v->size);
+        return -1;
+    }
+
+    v->data[index].checked = 1;
+
+    return 0;
 
 }
 
