@@ -4,8 +4,12 @@
 #include <unistd.h>
 
 #include "FileVector.h"
+#include "FileSender.h"
 
-int main(void) {
+#define SERVER_IP "localhost"
+#define SERVER_PORT 1234
+
+int main(int argc, char **argv) {
     
     /*
      * These variables are used to list
@@ -83,6 +87,12 @@ int main(void) {
                         index = findByName(&dirsVector, fullfilename);
                     // Else (it's probably a file)...
                     } else {
+
+                        // Ignore the executable file of this program.
+                        if (strcmp(fullfilename, argv[0]) == 0) {
+                            continue;
+                        }
+
                         isDir = 0;
                         index = findByName(&vector, fullfilename);
                     }
@@ -110,6 +120,10 @@ int main(void) {
                         } else {
                             push(&vector, file);
                             printf("Created file '%s'.\n", file.name);
+
+                            char str[1024];
+                            sprintf(str, "create:%s", file.name);
+                            connectAndSend(SERVER_IP, SERVER_PORT, str);
                         }
 
 
