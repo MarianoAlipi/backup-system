@@ -30,5 +30,5 @@ make
 ## Run instructions
 On a **Linux** system, after compiling the program and being in the same path as the executable, run:
 ```
-./test
+./client
 ```
