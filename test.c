@@ -69,5 +69,7 @@ int main(void) {
         printf(" - %s : %li\n", file.name, file.modTime);
     }
 
+    printf("Find by name 'test': %d\n", findByName(&vector, "test"));
+
     return 0;
 }
