@@ -5,8 +5,8 @@ Work-in-progress mission 6.
 Linux only.
 
 ## Files
-- **test.c**: identifies files and directories in the current path (.) and saves them in a vector defined in **FileVector.h**.
-- **FileVector.h**: defines a custom vector structure and a file structure to keep track of every file.
+- **test.c**: identifies files and directories in the current path (.) and saves them in a vector defined in **FileVector.h**. Detects creation, modification and deletion of files.
+- **FileVector.h**: defines a custom vector `struct` and a file `struct` to keep track of every file.
 
 ## Logic
 1. Identify initial files and directories (browse directories recursively too).
@@ -23,4 +23,12 @@ Linux only.
 
 ## Compile instructions
 On a **Linux** system, run:
-`make`
+```
+make
+```
+
+## Run instructions
+On a **Linux** system, after compiling the program and being in the same path as the executable, run:
+```
+./test
+```
