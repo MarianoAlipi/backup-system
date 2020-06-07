@@ -158,13 +158,34 @@ int main(int argc, char **argv) {
                 }
             }
 */
-            close(client_sockfd);
-            close(des_fd);
 
+        } else if (strstr(file_name, MODIFY_PREFIX) != NULL) {
+
+            char tmpName[256];
+
+            int posOfColon;
+
+            for(posOfColon = 0; posOfColon < strlen(file_name); posOfColon++) {
+                if (file_name[posOfColon] == ':') {
+                    break;
+                }
+            }
+
+            int c = 0;
+            while (c < strlen(file_name) - strlen(MODIFY_PREFIX)) {
+                tmpName[c] = file_name[posOfColon + 1 + c];
+                c++;
+            }
+            tmpName[c] = '\0';
+
+            receiveFile(tmpName, client_sockfd, buf);
+            
         }
 
 
 
+        close(client_sockfd);
+        close(des_fd);
 
     }
     close(server_sockfd);
