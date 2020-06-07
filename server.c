@@ -26,11 +26,8 @@ void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
 
 
     while(1) {
-printf("here 0\n");
         memset(buf, 0x00, MAXBUF);
-printf("here 1. buf: %s\n", buf);
         file_read_len = read(client_sockfd, buf, MAXBUF);
-printf("here 2\n");
         write(des_fd, buf, file_read_len);
         if(file_read_len == 0) {
             printf("finish file\n");
@@ -127,38 +124,9 @@ int main(int argc, char **argv) {
             }
             tmpName[c] = '\0';
 
-            printf("strlen(file_name): %ld\nstrlen('create:'): %ld\nposOfColon: %d\n", strlen(file_name), strlen("create:"), posOfColon);
-            printf("tmpName: '%s'\n", tmpName);
-            printf("strlen(tmpName): %ld\n", strlen(tmpName));
-
-            // char res[256];
-            // sprintf(res, "touch %s", tmpName);
-            printf("buf: '%s'\n", buf);
             receiveFile(tmpName, client_sockfd, buf);
 
-            // system(res);
-
-            /* create file */
-/*
-            des_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0700);
-            if(!des_fd) {
-                perror("file open error : ");
-                break;
-            }   
-*/
-            /* file save */
-/*
-            while(1) {
-                memset(buf, 0x00, MAXBUF);
-                file_read_len = read(client_sockfd, buf, MAXBUF);
-                write(des_fd, buf, file_read_len);
-                if(file_read_len == 0) {
-                    printf("finish file\n");
-                    break;
-                }
-            }
-*/
-
+        // If it's a 'modify file' instruction...
         } else if (strstr(file_name, MODIFY_PREFIX) != NULL) {
 
             char tmpName[256];
@@ -179,6 +147,27 @@ int main(int argc, char **argv) {
             tmpName[c] = '\0';
 
             receiveFile(tmpName, client_sockfd, buf);
+            
+        } else if (strstr(file_name, DELETE_PREFIX) != NULL) {
+
+            char tmpName[256];
+
+            int posOfColon;
+
+            for(posOfColon = 0; posOfColon < strlen(file_name); posOfColon++) {
+                if (file_name[posOfColon] == ':') {
+                    break;
+                }
+            }
+
+            int c = 0;
+            while (c < strlen(file_name) - strlen(DELETE_PREFIX)) {
+                tmpName[c] = file_name[posOfColon + 1 + c];
+                c++;
+            }
+            tmpName[c] = '\0';
+
+            remove(tmpName);
             
         }
 

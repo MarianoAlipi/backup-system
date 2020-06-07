@@ -59,33 +59,30 @@ int main(int argc, char **argv) {
     printf(" > %s\n", buf);
     file_name_len = strlen(buf) + 1;
 
+    // The filename or instruction.
     send(s, buf, file_name_len, 0);
 
-//////////////
+    // If it's a 'create file' instruction...
+    if (strstr(buf, CREATE_PREFIX) != NULL) {
 
-// If it's a 'create file' instruction...
-if (strstr(buf, CREATE_PREFIX) != NULL) {
+    char tmpName[256];
 
-char tmpName[256];
+    int posOfColon;
 
-        int posOfColon;
-
-        for(posOfColon = 0; posOfColon < strlen(buf); posOfColon++) {
-            if (buf[posOfColon] == ':') {
-                break;
-            }
+    for(posOfColon = 0; posOfColon < strlen(buf); posOfColon++) {
+        if (buf[posOfColon] == ':') {
+            break;
         }
+    }
 
-        int c = 0;
-        while (c < strlen(buf) - strlen(CREATE_PREFIX)) {
-            tmpName[c] = buf[posOfColon + 1 + c];
-            c++;
-        }
-        tmpName[c] = '\0';
+    int c = 0;
+    while (c < strlen(buf) - strlen(CREATE_PREFIX)) {
+        tmpName[c] = buf[posOfColon + 1 + c];
+        c++;
+    }
+    tmpName[c] = '\0';
 
-//////////////
-
-    // source_fd = open(buf, O_RDONLY);
+    // Send the file's contents.
     source_fd = open(tmpName, O_RDONLY);
     if(!source_fd) {
         perror("Error : ");
@@ -102,10 +99,10 @@ char tmpName[256];
 
     }
 
-// If it's a 'modify file' instruction...
-} else if (strstr(buf, MODIFY_PREFIX) != NULL) {
+    // If it's a 'modify file' instruction...
+    } else if (strstr(buf, MODIFY_PREFIX) != NULL) {
 
-char tmpName[256];
+        char tmpName[256];
 
         int posOfColon;
 
@@ -122,25 +119,23 @@ char tmpName[256];
         }
         tmpName[c] = '\0';
 
-//////////////
-
-    // source_fd = open(buf, O_RDONLY);
-    source_fd = open(tmpName, O_RDONLY);
-    if(!source_fd) {
-        perror("Error : ");
-        return 1;
-    }
-
-    while(1) {
-        memset(buf, 0x00, MAXBUF);
-        read_len = read(source_fd, buf, MAXBUF);
-        send(s, buf, read_len, 0);
-        if(read_len == 0) {
-            break;
+        // Send the file's contents.
+        source_fd = open(tmpName, O_RDONLY);
+        if(!source_fd) {
+            perror("Error : ");
+            return 1;
         }
 
+        while(1) {
+            memset(buf, 0x00, MAXBUF);
+            read_len = read(source_fd, buf, MAXBUF);
+            send(s, buf, read_len, 0);
+            if(read_len == 0) {
+                break;
+            }
+
+        }
     }
-}
 
     return 0;
 }
