@@ -1,4 +1,4 @@
-build: clean client server
+build: clean client server test
 	@echo "Done."
 
 client:
@@ -16,4 +16,5 @@ test:
 clean:
 	rm -f client
 	rm -f server
+	rm -f tst/test
 	@echo "Done."
