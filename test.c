@@ -15,7 +15,6 @@ int main(void) {
      */
     DIR *d;
     struct dirent *dir;
-    d = opendir(".");
 
     /*
     * Relevant values for dir->dtype:
@@ -32,33 +31,53 @@ int main(void) {
     // to add files to the vector.
     struct File file;
     
-    if (d) {
+    // An auxiliary integer to use indices.
+    int index;
 
-        // List all files in the directory.
-        while ((dir = readdir(d)) != NULL) {
-            printf("%s\t(%s)\n", dir->d_name, dir->d_type == DT_DIR ? "directory" : dir->d_type == DT_REG ? "file" : "unknown");
+    while (1) {
 
-            // Copy the name to the auxiliary File variable.
-            strcpy(file.name, dir->d_name);
+        d = opendir(".");
 
-            // Add it to the vector only if it's a file.
-            // We must implement recursive directory searching too.
-            if (dir->d_type == DT_REG) {
-                struct stat file_stat;
-                int err = stat(dir->d_name, &file_stat);
+        if (d) {
 
-                if (err != 0) {
-                    printf("ERROR\n");
-                    return -1;
+            // List all files in the directory.
+            while ((dir = readdir(d)) != NULL) {
+                /* DEBUGGING: print the file's name and type.
+                 * printf("%s\t(%s)\n", dir->d_name, dir->d_type == DT_DIR ? "directory" : dir->d_type == DT_REG ? "file" : "unknown");
+                 */
+                index = findByName(&vector, dir->d_name);
+
+                // Detected the creation of a file.
+                if (index == -1 && dir->d_type == DT_REG) {
+                    // Copy the name to the auxiliary File variable.
+                    strcpy(file.name, dir->d_name);
+
+                    // Get the file's modification time.
+                    struct stat file_stat;
+                    int err = stat(dir->d_name, &file_stat);
+
+                    if (err != 0) {
+                        printf("ERROR\n");
+                        return -1;
+                    }
+
+                    // Set the file's modification time.
+                    file.modTime = file_stat.st_mtime;
+
+                    // Add the file to the vector.
+                    push(&vector, file);
+
+                    printf("Created file '%s'.\n", file.name);
+
                 }
-
-                // Set the file's modification time.
-                file.modTime = file_stat.st_mtime;
-                push(&vector, file);
             }
-        }
 
-        closedir(d);
+            closedir(d);
+
+            // Wait for 1 second until detecting changes again.
+            sleep(1);
+
+        }
 
     }
 

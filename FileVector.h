@@ -78,11 +78,12 @@ int delete(struct Vector *v, int index) {
 
 // Search for the file with the specified name and return its index in the vector.
 // If the file is not in the vector, return -1.
+// If the vector is not initialized, return -2.
 int findByName(struct Vector *v, char name[256]) {
 
     if (v == NULL) {
         printf("ERROR: vector not initialized!\n");
-        return -1;
+        return -2;
     }
 
     for (int i = 0; i < v->size; i++) {
