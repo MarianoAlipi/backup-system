@@ -10,11 +10,12 @@
 #include <fcntl.h>
 
 #define MAXBUF  1024
+#define CREATE_PREFIX "create:"
 
 int main(int argc, char **argv) {
     struct sockaddr_in serv_addr;
     int     s;
-    int         sourse_fd;
+    int         source_fd;
     char        buf[MAXBUF];
     int         file_name_len, read_len;
 
@@ -57,21 +58,49 @@ int main(int argc, char **argv) {
     file_name_len = strlen(buf) + 1;
 
     send(s, buf, file_name_len, 0);
-    sourse_fd = open(buf, O_RDONLY);
-    if(!sourse_fd) {
+
+//////////////
+
+// If it's a 'create file' instruction...
+if (strstr(buf, CREATE_PREFIX) != NULL) {
+
+char tmpName[256];
+
+        int posOfColon;
+
+        for(posOfColon = 0; posOfColon < strlen(buf); posOfColon++) {
+            if (buf[posOfColon] == ':') {
+                break;
+            }
+        }
+
+        int c = 0;
+        while (c < strlen(buf) - strlen(CREATE_PREFIX)) {
+            tmpName[c] = buf[posOfColon + 1 + c];
+            c++;
+        }
+        tmpName[c] = '\0';
+
+//////////////
+
+    // source_fd = open(buf, O_RDONLY);
+    source_fd = open(tmpName, O_RDONLY);
+    if(!source_fd) {
         perror("Error : ");
         return 1;
     }
 
     while(1) {
         memset(buf, 0x00, MAXBUF);
-        read_len = read(sourse_fd, buf, MAXBUF);
+        read_len = read(source_fd, buf, MAXBUF);
         send(s, buf, read_len, 0);
         if(read_len == 0) {
             break;
         }
 
     }
+
+}
 
     return 0;
 }

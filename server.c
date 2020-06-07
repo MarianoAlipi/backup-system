@@ -10,6 +10,34 @@
 #include <errno.h>
 
 #define MAXBUF  1024
+#define CREATE_PREFIX "create:"
+#define DELETE_PREFIX "delete:"
+#define MODIFY_PREFIX "modify:"
+
+void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
+
+    int des_fd, file_read_len;
+
+    des_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0700);
+    if(!des_fd) {
+        perror("file open error : ");
+        return;
+    }   
+
+
+    while(1) {
+printf("here 0\n");
+        memset(buf, 0x00, MAXBUF);
+printf("here 1. buf: %s\n", buf);
+        file_read_len = read(client_sockfd, buf, MAXBUF);
+printf("here 2\n");
+        write(des_fd, buf, file_read_len);
+        if(file_read_len == 0) {
+            printf("finish file\n");
+            break;
+        }
+    }
+}
 
 int main(int argc, char **argv) {
 
@@ -79,26 +107,65 @@ int main(int argc, char **argv) {
             break;
         }
 
-        /* create file */
+        // If it's a 'create file' instruction...
+        if (strstr(file_name, CREATE_PREFIX) != NULL) {
 
-        des_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0700);
-        if(!des_fd) {
-            perror("file open error : ");
-            break;
-        }   
-        /* file save */
-        while(1) {
-            memset(buf, 0x00, MAXBUF);
-            file_read_len = read(client_sockfd, buf, MAXBUF);
-            write(des_fd, buf, file_read_len);
-            if(/* file_read_len == EOF | */ file_read_len == 0) {
-                printf("finish file\n");
-                break;
+            char tmpName[256];
+
+            int posOfColon;
+
+            for(posOfColon = 0; posOfColon < strlen(file_name); posOfColon++) {
+                if (file_name[posOfColon] == ':') {
+                    break;
+                }
             }
+
+            int c = 0;
+            while (c < strlen(file_name) - strlen(CREATE_PREFIX)) {
+                tmpName[c] = file_name[posOfColon + 1 + c];
+                c++;
+            }
+            tmpName[c] = '\0';
+
+            printf("strlen(file_name): %ld\nstrlen('create:'): %ld\nposOfColon: %d\n", strlen(file_name), strlen("create:"), posOfColon);
+            printf("tmpName: '%s'\n", tmpName);
+            printf("strlen(tmpName): %ld\n", strlen(tmpName));
+
+            // char res[256];
+            // sprintf(res, "touch %s", tmpName);
+            printf("buf: '%s'\n", buf);
+            receiveFile(tmpName, client_sockfd, buf);
+
+            // system(res);
+
+            /* create file */
+/*
+            des_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0700);
+            if(!des_fd) {
+                perror("file open error : ");
+                break;
+            }   
+*/
+            /* file save */
+/*
+            while(1) {
+                memset(buf, 0x00, MAXBUF);
+                file_read_len = read(client_sockfd, buf, MAXBUF);
+                write(des_fd, buf, file_read_len);
+                if(file_read_len == 0) {
+                    printf("finish file\n");
+                    break;
+                }
+            }
+*/
+            close(client_sockfd);
+            close(des_fd);
+
         }
 
-        close(client_sockfd);
-        close(des_fd);
+
+
+
     }
     close(server_sockfd);
     return 0;
