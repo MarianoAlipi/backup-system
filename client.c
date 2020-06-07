@@ -31,86 +31,154 @@ int main(void) {
     struct Vector vector;
     initVector(&vector);
 
+    // The vector to track the subdirectories.
+    struct Vector dirsVector;
+    initVector(&dirsVector);
+    struct File rootDir;
+    sprintf(rootDir.name, ".");
+    rootDir.modTime = 0;
+    push(&dirsVector, rootDir);
+
     // The auxiliary File variable
     // to add files to the vector.
     struct File file;
     
     // An auxiliary integer to use indices.
     int index;
+    // A flag to determine if the current file is a directory or not.
+    int isDir;
+    // The current path.
+    char currPath[1024];
+    // The name (with path) of the current file.
+    char fullfilename[1024];
 
     while (1) {
 
-        d = opendir(".");
+        for (int dirI = 0; dirI < dirsVector.size; dirI++) {
 
-        if (d) {
+            // d = opendir(".");
+            d = opendir(dirsVector.data[dirI].name);
+            strcpy(currPath, dirsVector.data[dirI].name);
+            // printf("currPath: %s\n", currPath);
 
-            // List all files in the directory.
-            while ((dir = readdir(d)) != NULL) {
-                /* DEBUGGING: print the file's name and type.
-                 * printf("%s\t(%s)\n", dir->d_name, dir->d_type == DT_DIR ? "directory" : dir->d_type == DT_REG ? "file" : "unknown");
-                 */
-                index = findByName(&vector, dir->d_name);
+            if (d) {
 
-                err = stat(dir->d_name, &file_stat);
+                // List all files in the directory.
+                while ((dir = readdir(d)) != NULL) {
+                    /* DEBUGGING: print the file's name and type.
+                     * printf("%s\t(%s)\n", dir->d_name, dir->d_type == DT_DIR ? "directory" : dir->d_type == DT_REG ? "file" : "unknown");
+                     */
 
-                if (err != 0) {
-                    printf("ERROR: could not get the file's modification time.\n");
-                    return -1;
-                }
+                    sprintf(fullfilename, "%s/%s", currPath, dir->d_name);
 
-                // Detected the creation of a file.
-                if (index == -1 && dir->d_type == DT_REG) {
-                    // Copy the name to the auxiliary File variable.
-                    strcpy(file.name, dir->d_name);
+                    // If it's a directory...
+                    if (dir->d_type == DT_DIR) {
 
-                    // Set the file's modification time.
-                    file.modTime = file_stat.st_mtime;
+                        // Ignore the "." and ".." directories.
+                        if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
+                            continue;
+                        }
 
-                    // Add the file to the vector.
-                    push(&vector, file);
+                        isDir = 1;
+                        index = findByName(&dirsVector, fullfilename);
+                    // Else (it's probably a file)...
+                    } else {
+                        isDir = 0;
+                        index = findByName(&vector, fullfilename);
+                    }
 
-                    printf("Created file '%s'.\n", file.name);
+                    err = stat(fullfilename, &file_stat);
 
-                // The file exists, but check if it has been modified.
-                } else if (index >= 0 && dir->d_type == DT_REG) {
+                    if (err != 0) {
+                        printf("ERROR: could not get the modification time of file: '%s'.\n", fullfilename);
+                        // return -1;
+                        file_stat.st_mtime = 0;
+                    }
 
-                    // Mark it as checked.
-                    markChecked(&vector, index);
+                    // Detected the creation of a file or directory.
+                    if (index == -1) {
+                        // Copy the name to the auxiliary File variable.
+                        strcpy(file.name, fullfilename);
 
-                    // Compare the modification times.
-                    if (vector.data[index].modTime != file_stat.st_mtime) {
-                        // Set the file's new modification time.
+                        // Set the file's modification time.
                         file.modTime = file_stat.st_mtime;
 
-                        // Update the file in the vector.
-                        set(&vector, index, file);
+                        // Add the file to the corresponding vector.
+                        if (isDir) {
+                            push(&dirsVector, file);
+                            printf("Created directory '%s'.\n", file.name);
+                        } else {
+                            push(&vector, file);
+                            printf("Created file '%s'.\n", file.name);
+                        }
 
-                        printf("Modified file '%s'.\n", file.name);
+
+                    // The file or directory exists. If it's a file, check if it has been modified.
+                    } else if (index >= 0) {
+
+                        // Mark it as checked.
+                        if (isDir) {
+                            markChecked(&dirsVector, index);
+                        } else {
+                            markChecked(&vector, index);
+
+                            // Compare the modification times.
+                            if (vector.data[index].modTime != file_stat.st_mtime) {
+                                // Set the file's new modification time.
+                                file.modTime = file_stat.st_mtime;
+
+                                // Update the file in the vector.
+                                set(&vector, index, file);
+
+                                printf("Modified file '%s'.\n", file.name);
+
+                            }
+                        }
 
                     }
                 }
+
+                closedir(d);
+
+                // Wait for 1 second until detecting changes again.
+                sleep(1);
+
             }
-
-            closedir(d);
-
-            // Detect deleted files.
-            for (int i = 0; i < vector.size; i++) {
-                // The file was not checked.
-                // This means it was not found.
-                if (vector.data[i].checked == 0) {
-                    printf("Deleted file '%s'.\n", vector.data[i].name);
-                    delete(&vector, i);
-                    // Subtract 1 from i so that this index is repeated.
-                    i--;
-                }
-            }
-
-            markAllUnchecked(&vector);
-
-            // Wait for 1 second until detecting changes again.
-            sleep(1);
 
         }
+
+        // Detect deleted files.
+        for (int i = 0; i < vector.size; i++) {
+            // The file was not checked.
+            // This means it was not found.
+            if (vector.data[i].checked == 0) {
+                printf("Deleted file '%s'.\n", vector.data[i].name);
+                delete(&vector, i);
+                // Subtract 1 from i so that this index is repeated.
+                i--;
+            }
+        }
+
+        // Detect deleted directories.
+        for (int i = 0; i < dirsVector.size; i++) {
+
+            // Ignore the "." directory.
+            if (strcmp(dirsVector.data[i].name, ".") == 0) {
+                continue;
+            }
+
+            // The directory was not checked.
+            // This means it was not found.
+            if (dirsVector.data[i].checked == 0) {
+                printf("Deleted directory '%s'.\n", dirsVector.data[i].name);
+                delete(&dirsVector, i);
+                // Subtract 1 from i so that this index is repeated.
+                i--;
+            }
+        }
+
+        markAllUnchecked(&vector);
+        markAllUnchecked(&dirsVector);
 
     }
 
