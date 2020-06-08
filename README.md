@@ -42,7 +42,7 @@ make
 ```
 
 ## Run instructions
-Make sure to place the **client** executable and the **server** executable in different directories at the same hierarchy.
+If you are running both programs on the same computer, make sure to place the **client** executable and the **server** executable in different directories at the same hierarchy.
 For example:
 - files
   - serverFiles
@@ -50,15 +50,16 @@ For example:
   - clientFiles
     - client (executable)
 
-### Client
-Run:
-```
-./client
-```
-
 ### Server
 Run:
 ```
 ./server portNumber
 ```
-The default port number on the client side is *1234*. Make sure to enter it or the program won't be able to communicate.
+
+### Client
+Run:
+```
+./client hostname portNumber
+```
+If you are running both programs on the same computer, you can type ```localhost``` or ```127.0.0.1``` for the hostname.
+Make sure to enter the same port number for both programs.

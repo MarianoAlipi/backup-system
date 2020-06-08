@@ -6,11 +6,24 @@
 #include "FileVector.h"
 #include "FileSender.h"
 
-#define SERVER_IP "localhost"
-#define SERVER_PORT 1234
-
 int main(int argc, char **argv) {
     
+    if (argc < 3) {
+        printf("usage: %s hostname port\n", argv[0]);
+        return 1;
+    }
+
+    char SERVER_IP[256];
+    int SERVER_PORT;
+
+    strcpy(SERVER_IP, argv[1]);
+    SERVER_PORT = atoi(argv[2]);
+
+    if (SERVER_PORT == 0) {
+        printf("ERROR: invalid port.\n");
+        return 1;
+    }
+
     /*
      * These variables are used to list
      * files and directories in the
