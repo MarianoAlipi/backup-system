@@ -125,6 +125,7 @@ int main(int argc, char **argv) {
                             sprintf(str, "create:%s", file.name);
                             connectToServer(SERVER_IP, SERVER_PORT);
                             sendToServer(str);
+                            sleep(3);
                         }
 
 
@@ -147,6 +148,12 @@ int main(int argc, char **argv) {
 
                                 printf("Modified file '%s'.\n", file.name);
 
+                                char str[1024];
+                                sprintf(str, "modify:%s", file.name);
+                                connectToServer(SERVER_IP, SERVER_PORT);
+                                sendToServer(str);
+                                sleep(3);
+
                             }
                         }
 
@@ -168,6 +175,13 @@ int main(int argc, char **argv) {
             // This means it was not found.
             if (vector.data[i].checked == 0) {
                 printf("Deleted file '%s'.\n", vector.data[i].name);
+
+                char str[1024];
+                sprintf(str, "delete:%s", file.name);
+                connectToServer(SERVER_IP, SERVER_PORT);
+                sendToServer(str);
+                sleep(3);
+
                 delete(&vector, i);
                 // Subtract 1 from i so that this index is repeated.
                 i--;
