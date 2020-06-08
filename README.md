@@ -59,6 +59,6 @@ Run:
 ### Server
 Run:
 ```
-./server *portNumber*
+./server portNumber
 ```
 The default port number on the client side is *1234*. Make sure to enter it or the program won't be able to communicate.
