@@ -25,7 +25,7 @@ void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
 
     des_fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0700);
     if(!des_fd) {
-        perror("file open error : ");
+        perror("Error opening file: ");
         return;
     }   
 
@@ -33,8 +33,9 @@ void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
         memset(buf, 0x00, MAXBUF);
         file_read_len = read(client_sockfd, buf, MAXBUF);
         write(des_fd, buf, file_read_len);
-        if(file_read_len < MAXBUF) {
-            printf("finish file\n");
+        
+        if (file_read_len < MAXBUF) {
+            printf("Finish receiving file.\n");
             break;
         }
     }
@@ -61,48 +62,49 @@ int main(int argc, char **argv) {
     const int PORT = atoi(argv[1]);
 
     if (PORT == 0) {
-        printf("Invalid port.\n");
+        printf("ERROR: invalid port.\n");
         return 1;
     }
 
-    printf("Port is: %s\n", argv[1]);
+    printf("Running on port: %s\n", argv[1]);
 
-    /* socket() */
+    // socket()
     server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(server_sockfd == -1) {
-        perror("socket error : ");
+        perror("Socket error: ");
         exit(0);
     }
 
-    /* bind() */
+    // bind()
     bzero(&serveraddr, sizeof(serveraddr));
     serveraddr.sin_family       = AF_INET;
     serveraddr.sin_addr.s_addr  = htonl(INADDR_ANY);
     serveraddr.sin_port         = htons(PORT);
 
-    if(bind(server_sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) > 0) {
-        perror("bind error : ");
+    if (bind(server_sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) > 0) {
+        perror("Bind error: ");
         exit(0);
     }
 
-    /* listen */
-    if(listen(server_sockfd, 5) != 0) {
-        perror("listen error : ");
+    // listen
+    if (listen(server_sockfd, 5) != 0) {
+        perror("Listen error: ");
     }
 
     while(1) {
-        char file_name[MAXBUF]; // local val
+
+        char file_name[MAXBUF]; // This is a local value.
         memset(buf, 0x00, MAXBUF);
 
-        /* accept() */
+        // accept()
         client_sockfd = accept(server_sockfd, (struct sockaddr *)&clientaddr, &client_len);
-        printf("New Client Connect : %s\n", inet_ntoa(clientaddr.sin_addr));
+        printf("New connection: %s\n", inet_ntoa(clientaddr.sin_addr));
 
-        /* file name */
+        // Filename
         read_len = read(client_sockfd, buf, MAXBUF);
         if(read_len > 0) {
             strcpy(file_name, buf);
-            printf("%s > %s\n", inet_ntoa(clientaddr.sin_addr), file_name);
+            printf("%s: %s\n", inet_ntoa(clientaddr.sin_addr), file_name);
         } else {
             close(client_sockfd);
             break;
@@ -129,6 +131,7 @@ int main(int argc, char **argv) {
             tmpName[c] = '\0';
 
             receiveFile(tmpName, client_sockfd, buf);
+
         // If it's a 'create directory' instruction...
         } else if (strstr(file_name, CREATE_DIR_PREFIX) != NULL) {
 
@@ -225,7 +228,7 @@ int main(int argc, char **argv) {
         }
 
         close(client_sockfd);
-        printf("Disconnected client.\n");
+        printf("Connection ended.\n\n");
         
         close(des_fd);
 
