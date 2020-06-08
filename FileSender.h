@@ -11,7 +11,9 @@
 
 #define MAXBUF  1024
 #define CREATE_PREFIX "create:"
+#define CREATE_DIR_PREFIX "createDir:"
 #define DELETE_PREFIX "delete:"
+#define DELETE_DIR_PREFIX "deleteDir:"
 #define MODIFY_PREFIX "modify:"
 
 struct sockaddr_in serv_addr;

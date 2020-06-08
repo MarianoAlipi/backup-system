@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
                             printf("Created file '%s'.\n", file.name);
 
                             char str[1024];
-                            sprintf(str, "create:%s", file.name);
+                            sprintf(str, "%s%s", CREATE_PREFIX, file.name);
                             connectToServer(SERVER_IP, SERVER_PORT);
                             sendToServer(str);
                             sleep(3);
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
                                 printf("Modified file '%s'.\n", file.name);
 
                                 char str[1024];
-                                sprintf(str, "modify:%s", file.name);
+                                sprintf(str, "%s%s", MODIFY_PREFIX, file.name);
                                 connectToServer(SERVER_IP, SERVER_PORT);
                                 sendToServer(str);
                                 sleep(3);
@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
                 printf("Deleted file '%s'.\n", vector.data[i].name);
 
                 char str[1024];
-                sprintf(str, "delete:%s", file.name);
+                sprintf(str, "%s%s", DELETE_PREFIX, file.name);
                 connectToServer(SERVER_IP, SERVER_PORT);
                 sendToServer(str);
                 sleep(3);

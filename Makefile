@@ -1,20 +1,16 @@
-build: clean client server test
+build: clean client server
 	@echo "Done."
 
 client:
-	gcc client.c -o client
+	gcc client.c -o tst/client
 	@echo "Done."
 
 server:
-	gcc server.c -o server
-	@echo "Done."
-
-test:
-	gcc test.c -o tst/test
+	gcc server.c -o ../serverFiles/server
 	@echo "Done."
 
 clean:
 	rm -f client
-	rm -f server
-	rm -f tst/test
+	rm -f ../serverFiles/server
+	rm -f tst/client
 	@echo "Done."
