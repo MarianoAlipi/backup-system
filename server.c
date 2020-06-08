@@ -14,6 +14,7 @@
 #define DELETE_PREFIX "delete:"
 #define MODIFY_PREFIX "modify:"
 
+
 // Receive the contents of a file from the client and save it in
 // a file named 'file_name'.
 void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
@@ -30,7 +31,7 @@ void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
         memset(buf, 0x00, MAXBUF);
         file_read_len = read(client_sockfd, buf, MAXBUF);
         write(des_fd, buf, file_read_len);
-        if(file_read_len == 0) {
+        if(file_read_len < MAXBUF) {
             printf("finish file\n");
             break;
         }
@@ -174,6 +175,8 @@ int main(int argc, char **argv) {
         }
 
         close(client_sockfd);
+        printf("Disconnected client.\n");
+        
         close(des_fd);
 
     }

@@ -14,18 +14,21 @@
 #define DELETE_PREFIX "delete:"
 #define MODIFY_PREFIX "modify:"
 
-int connectAndSend(char ip[256], int port, char message[1024]) {
+struct sockaddr_in serv_addr;
+int     s;
+int         source_fd;
+char        buf[MAXBUF];
+int         file_name_len, read_len;
 
-    struct sockaddr_in serv_addr;
-    int     s;
-    int         source_fd;
-    char        buf[MAXBUF];
-    int         file_name_len, read_len;
+// Default: 5500
+int PORT;
+// Default: "127.0.0.1"
+char IP[256];
 
-    // Default: 5500
-    const int PORT = port;
-    // Default: "127.0.0.1"
-    char IP[256];
+int connectToServer(char ip[256], int port) {
+
+    PORT = port;
+
     if (strcmp(ip, "localhost") == 0) {
         strcpy(IP, "127.0.0.1");
     }
@@ -51,6 +54,12 @@ int connectAndSend(char ip[256], int port, char message[1024]) {
         return 1;
     }
 
+    return 0;
+
+}
+
+int sendToServer(char message[1024]) {
+
     memset(buf, 0x00, MAXBUF);
 /*
     printf("write file name to send to the server:  ");
@@ -68,39 +77,41 @@ int connectAndSend(char ip[256], int port, char message[1024]) {
     // If it's a 'create file' instruction...
     if (strstr(buf, CREATE_PREFIX) != NULL) {
 
-    char tmpName[256];
+        char tmpName[256];
 
-    int posOfColon;
+        int posOfColon;
 
-    for(posOfColon = 0; posOfColon < strlen(buf); posOfColon++) {
-        if (buf[posOfColon] == ':') {
-            break;
-        }
-    }
-
-    int c = 0;
-    while (c < strlen(buf) - strlen(CREATE_PREFIX)) {
-        tmpName[c] = buf[posOfColon + 1 + c];
-        c++;
-    }
-    tmpName[c] = '\0';
-
-    // Send the file's contents.
-    source_fd = open(tmpName, O_RDONLY);
-    if(!source_fd) {
-        perror("Error : ");
-        return 1;
-    }
-
-    while(1) {
-        memset(buf, 0x00, MAXBUF);
-        read_len = read(source_fd, buf, MAXBUF);
-        send(s, buf, read_len, 0);
-        if(read_len == 0) {
-            break;
+        for(posOfColon = 0; posOfColon < strlen(buf); posOfColon++) {
+            if (buf[posOfColon] == ':') {
+                break;
+            }
         }
 
-    }
+        int c = 0;
+        while (c < strlen(buf) - strlen(CREATE_PREFIX)) {
+            tmpName[c] = buf[posOfColon + 1 + c];
+            c++;
+        }
+        tmpName[c] = '\0';
+
+        // Send the file's contents.
+        source_fd = open(tmpName, O_RDONLY);
+        if(!source_fd) {
+            perror("Error : ");
+            return 1;
+        }
+
+        while(1) {
+printf("sending...\n");
+            memset(buf, 0x00, MAXBUF);
+            read_len = read(source_fd, buf, MAXBUF);
+            send(s, buf, read_len, 0);
+            if(read_len == 0) {
+                break;
+            }
+
+        }
+printf("done.\n");
 
     // If it's a 'modify file' instruction...
     } else if (strstr(buf, MODIFY_PREFIX) != NULL) {
@@ -139,6 +150,8 @@ int connectAndSend(char ip[256], int port, char message[1024]) {
 
         }
     }
+
+    close(source_fd);
 
     return 0;
 }

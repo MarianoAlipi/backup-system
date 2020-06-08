@@ -123,7 +123,8 @@ int main(int argc, char **argv) {
 
                             char str[1024];
                             sprintf(str, "create:%s", file.name);
-                            connectAndSend(SERVER_IP, SERVER_PORT, str);
+                            connectToServer(SERVER_IP, SERVER_PORT);
+                            sendToServer(str);
                         }
 
 
