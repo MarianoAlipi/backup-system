@@ -4,8 +4,12 @@
 #include <unistd.h>
 
 #include "FileVector.h"
+#include "FileSender.h"
 
-int main(void) {
+#define SERVER_IP "localhost"
+#define SERVER_PORT 1234
+
+int main(int argc, char **argv) {
     
     /*
      * These variables are used to list
@@ -83,6 +87,12 @@ int main(void) {
                         index = findByName(&dirsVector, fullfilename);
                     // Else (it's probably a file)...
                     } else {
+
+                        // Ignore the executable file of this program.
+                        if (strcmp(fullfilename, argv[0]) == 0) {
+                            continue;
+                        }
+
                         isDir = 0;
                         index = findByName(&vector, fullfilename);
                     }
@@ -110,6 +120,12 @@ int main(void) {
                         } else {
                             push(&vector, file);
                             printf("Created file '%s'.\n", file.name);
+
+                            char str[1024];
+                            sprintf(str, "create:%s", file.name);
+                            connectToServer(SERVER_IP, SERVER_PORT);
+                            sendToServer(str);
+                            sleep(3);
                         }
 
 
@@ -132,6 +148,12 @@ int main(void) {
 
                                 printf("Modified file '%s'.\n", file.name);
 
+                                char str[1024];
+                                sprintf(str, "modify:%s", file.name);
+                                connectToServer(SERVER_IP, SERVER_PORT);
+                                sendToServer(str);
+                                sleep(3);
+
                             }
                         }
 
@@ -153,6 +175,13 @@ int main(void) {
             // This means it was not found.
             if (vector.data[i].checked == 0) {
                 printf("Deleted file '%s'.\n", vector.data[i].name);
+
+                char str[1024];
+                sprintf(str, "delete:%s", file.name);
+                connectToServer(SERVER_IP, SERVER_PORT);
+                sendToServer(str);
+                sleep(3);
+
                 delete(&vector, i);
                 // Subtract 1 from i so that this index is repeated.
                 i--;
