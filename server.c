@@ -11,7 +11,9 @@
 
 #define MAXBUF  1024
 #define CREATE_PREFIX "create:"
+#define CREATE_DIR_PREFIX "createDir:"
 #define DELETE_PREFIX "delete:"
+#define DELETE_DIR_PREFIX "deleteDir:"
 #define MODIFY_PREFIX "modify:"
 
 
@@ -127,6 +129,32 @@ int main(int argc, char **argv) {
             tmpName[c] = '\0';
 
             receiveFile(tmpName, client_sockfd, buf);
+        // If it's a 'create directory' instruction...
+        } else if (strstr(file_name, CREATE_DIR_PREFIX) != NULL) {
+
+            char tmpName[256];
+
+            int posOfColon;
+
+            for(posOfColon = 0; posOfColon < strlen(file_name); posOfColon++) {
+                if (file_name[posOfColon] == ':') {
+                    break;
+                }
+            }
+
+            int c = 0;
+            while (c < strlen(file_name) - strlen(CREATE_DIR_PREFIX)) {
+                tmpName[c] = file_name[posOfColon + 1 + c];
+                c++;
+            }
+            tmpName[c] = '\0';
+
+            int res = mkdir(tmpName, 0700);
+            
+            if (res == 0) {
+                printf("Created directory '%s'.\n", tmpName);
+            }
+
 
         // If it's a 'modify file' instruction...
         } else if (strstr(file_name, MODIFY_PREFIX) != NULL) {
@@ -165,6 +193,28 @@ int main(int argc, char **argv) {
 
             int c = 0;
             while (c < strlen(file_name) - strlen(DELETE_PREFIX)) {
+                tmpName[c] = file_name[posOfColon + 1 + c];
+                c++;
+            }
+            tmpName[c] = '\0';
+
+            remove(tmpName);
+
+        // If it's a 'delete directory' instruction...
+        } else if (strstr(file_name, DELETE_DIR_PREFIX) != NULL) {
+
+            char tmpName[256];
+
+            int posOfColon;
+
+            for(posOfColon = 0; posOfColon < strlen(file_name); posOfColon++) {
+                if (file_name[posOfColon] == ':') {
+                    break;
+                }
+            }
+
+            int c = 0;
+            while (c < strlen(file_name) - strlen(DELETE_DIR_PREFIX)) {
                 tmpName[c] = file_name[posOfColon + 1 + c];
                 c++;
             }

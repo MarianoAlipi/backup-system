@@ -117,6 +117,12 @@ int main(int argc, char **argv) {
                         if (isDir) {
                             push(&dirsVector, file);
                             printf("Created directory '%s'.\n", file.name);
+
+                            char str[1024];
+                            sprintf(str, "%s%s", CREATE_DIR_PREFIX, file.name);
+                            connectToServer(SERVER_IP, SERVER_PORT);
+                            sendToServer(str);
+                            sleep(3);
                         } else {
                             push(&vector, file);
                             printf("Created file '%s'.\n", file.name);
@@ -177,7 +183,7 @@ int main(int argc, char **argv) {
                 printf("Deleted file '%s'.\n", vector.data[i].name);
 
                 char str[1024];
-                sprintf(str, "%s%s", DELETE_PREFIX, file.name);
+                sprintf(str, "%s%s", DELETE_PREFIX, vector.data[i].name);
                 connectToServer(SERVER_IP, SERVER_PORT);
                 sendToServer(str);
                 sleep(3);
@@ -200,6 +206,13 @@ int main(int argc, char **argv) {
             // This means it was not found.
             if (dirsVector.data[i].checked == 0) {
                 printf("Deleted directory '%s'.\n", dirsVector.data[i].name);
+
+                char str[1024];
+                sprintf(str, "%s%s", DELETE_DIR_PREFIX, dirsVector.data[i].name);
+                connectToServer(SERVER_IP, SERVER_PORT);
+                sendToServer(str);
+                sleep(3);
+
                 delete(&dirsVector, i);
                 // Subtract 1 from i so that this index is repeated.
                 i--;
