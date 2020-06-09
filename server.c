@@ -1,3 +1,11 @@
+/*
+ * This program is the server for the backup system.
+ * It receives instructions from the client as well
+ * as the needed files for performing the backup.
+ * 
+ * This program is designed for Linux systems.
+ * 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,9 +57,9 @@ int main(int argc, char **argv) {
 
     int server_sockfd;
     int client_sockfd;
-    int des_fd; // file num
+    int des_fd;
     struct sockaddr_in serveraddr, clientaddr;
-    int client_len, read_len, file_read_len;    // length
+    int client_len, read_len, file_read_len;
     char buf[MAXBUF];
 
     int check_bind;
@@ -69,7 +77,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    printf("Running on port: %s\n", argv[1]);
+    printf("Running on port: %s\n\n", argv[1]);
 
     // socket()
     server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -96,17 +104,17 @@ int main(int argc, char **argv) {
 
     while(1) {
 
-        char file_name[MAXBUF]; // This is a local value.
+        char file_name[MAXBUF];
         memset(buf, 0x00, MAXBUF);
 
         // accept()
         client_sockfd = accept(server_sockfd, (struct sockaddr *)&clientaddr, &client_len);
         printf("New connection: %s\n", inet_ntoa(clientaddr.sin_addr));
 
-struct timeval tv;
-tv.tv_sec = 2;
-tv.tv_usec = 0;
-setsockopt(client_sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+        struct timeval tv;
+        tv.tv_sec = 2;
+        tv.tv_usec = 0;
+        setsockopt(client_sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
         // Filename
         read_len = read(client_sockfd, buf, MAXBUF);

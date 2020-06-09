@@ -1,6 +1,10 @@
 /*
- * A simple custom vector type
- * (an array of variable size).
+ * This file is a part of the client for the backup system.
+ * It defines structures of a custom vector (an array of
+ * variable size) to keep track of the files and subdirectories.
+ * 
+ * This program is designed for Linux systems.
+ * 
  */
 
 #ifndef FILEVECTOR_H

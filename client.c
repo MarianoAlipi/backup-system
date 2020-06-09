@@ -1,3 +1,11 @@
+/*
+ * This program is the client for the backup system.
+ * It keeps track of all files and subdirectories
+ * located at its path.
+ * 
+ * This program is designed for Linux systems.
+ * 
+ */
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -73,18 +81,13 @@ int main(int argc, char **argv) {
 
         for (int dirI = 0; dirI < dirsVector.size; dirI++) {
 
-            // d = opendir(".");
             d = opendir(dirsVector.data[dirI].name);
             strcpy(currPath, dirsVector.data[dirI].name);
-            // printf("currPath: %s\n", currPath);
 
             if (d) {
 
                 // List all files in the directory.
                 while ((dir = readdir(d)) != NULL) {
-                    /* DEBUGGING: print the file's name and type.
-                     * printf("%s\t(%s)\n", dir->d_name, dir->d_type == DT_DIR ? "directory" : dir->d_type == DT_REG ? "file" : "unknown");
-                     */
 
                     sprintf(fullfilename, "%s/%s", currPath, dir->d_name);
 
@@ -98,7 +101,8 @@ int main(int argc, char **argv) {
 
                         isDir = 1;
                         index = findByName(&dirsVector, fullfilename);
-                    // Else (it's probably a file)...
+
+                    // Else (it's most likely a file)...
                     } else {
 
                         // Ignore the executable file of this program.
@@ -120,6 +124,7 @@ int main(int argc, char **argv) {
 
                     // Detected the creation of a file or directory.
                     if (index == -1) {
+                        
                         // Copy the name to the auxiliary File variable.
                         strcpy(file.name, fullfilename);
 

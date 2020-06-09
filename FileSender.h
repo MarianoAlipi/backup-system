@@ -1,3 +1,11 @@
+/*
+ * This file is a part of the client for the backup system.
+ * It contains functions to connect to the server and
+ * send the instructions and files.
+ * 
+ * This program is designed for Linux systems.
+ * 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,11 +30,11 @@ int         source_fd;
 char        buf[MAXBUF];
 int         file_name_len, read_len;
 
-// Default: 5500
 int PORT;
-// Default: "127.0.0.1"
 char IP[256];
 
+// Try to connect to the server.
+// Returns 0 on success and 1 otherwise.
 int connectToServer(char ip[256], int port) {
 
     PORT = port;
@@ -60,6 +68,9 @@ int connectToServer(char ip[256], int port) {
 
 }
 
+// Sends the instruction to the server and any
+// needed files.
+// Returns 0 on success and 1 otherwise.
 int sendToServer(char message[1024]) {
 
     memset(buf, 0x00, MAXBUF);
@@ -94,7 +105,7 @@ int sendToServer(char message[1024]) {
         // Send the file's contents.
         source_fd = open(tmpName, O_RDONLY);
         if(!source_fd) {
-            perror("Error : ");
+            perror("Error: ");
             return 1;
         }
 
@@ -108,7 +119,7 @@ int sendToServer(char message[1024]) {
             }
 
         }
-        
+
         printf("done.\n");
 
     // If it's a 'modify file' instruction...
@@ -134,7 +145,7 @@ int sendToServer(char message[1024]) {
         // Send the file's contents.
         source_fd = open(tmpName, O_RDONLY);
         if(!source_fd) {
-            perror("Error : ");
+            perror("Error: ");
             return 1;
         }
 
