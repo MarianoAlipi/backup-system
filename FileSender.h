@@ -50,8 +50,8 @@ int connectToServer(char ip[256], int port) {
     serv_addr.sin_port = htons(PORT);
 
     if(connect(s, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == -1) {
-        perror("connect : ");
-        printf("fail to connect.\n");
+        perror("Connection error: ");
+        printf("Failed to connect.\n");
         close(s);
         return 1;
     }
@@ -63,12 +63,7 @@ int connectToServer(char ip[256], int port) {
 int sendToServer(char message[1024]) {
 
     memset(buf, 0x00, MAXBUF);
-/*
-    printf("write file name to send to the server:  ");
-    scanf("%s", buf);
 
-    printf(" > %s\n", buf);
-*/
     strcpy(buf, message);
 
     file_name_len = strlen(buf) + 1;
@@ -104,7 +99,7 @@ int sendToServer(char message[1024]) {
         }
 
         while(1) {
-printf("sending...\n");
+            printf("sending...\n");
             memset(buf, 0x00, MAXBUF);
             read_len = read(source_fd, buf, MAXBUF);
             send(s, buf, read_len, 0);
@@ -113,7 +108,8 @@ printf("sending...\n");
             }
 
         }
-printf("done.\n");
+        
+        printf("done.\n");
 
     // If it's a 'modify file' instruction...
     } else if (strstr(buf, MODIFY_PREFIX) != NULL) {

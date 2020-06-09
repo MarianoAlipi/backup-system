@@ -133,23 +133,38 @@ int main(int argc, char **argv) {
 
                             char str[1024];
                             sprintf(str, "%s%s", CREATE_DIR_PREFIX, file.name);
-                            connectToServer(SERVER_IP, SERVER_PORT);
-                            sendToServer(str);
-                            sleep(3);
+                            if (connectToServer(SERVER_IP, SERVER_PORT) == 0) {
+                                if (sendToServer(str) == 0) {
+                                    sleep(3);
+                                } else {
+                                    printf("Transmission failed.\n");
+                                }
+                            } else {
+                                printf("Connection failed.\n");
+                            }
                         } else {
                             push(&vector, file);
                             printf("Created file '%s'.\n", file.name);
 
                             char str[1024];
                             sprintf(str, "%s%s", CREATE_PREFIX, file.name);
-                            connectToServer(SERVER_IP, SERVER_PORT);
-                            sendToServer(str);
-                            sleep(3);
+
+                            if (connectToServer(SERVER_IP, SERVER_PORT) == 0) {
+                                if (sendToServer(str) == 0) {
+                                    sleep(3);
+                                } else {
+                                    printf("Transmission failed.\n");
+                                }
+                            } else {
+                                printf("Connection failed.\n");
+                            }
                         }
 
 
                     // The file or directory exists. If it's a file, check if it has been modified.
                     } else if (index >= 0) {
+
+                        strcpy(file.name, fullfilename);
 
                         // Mark it as checked.
                         if (isDir) {
@@ -164,14 +179,22 @@ int main(int argc, char **argv) {
 
                                 // Update the file in the vector.
                                 set(&vector, index, file);
+                                markChecked(&vector, index);
 
                                 printf("Modified file '%s'.\n", file.name);
 
                                 char str[1024];
                                 sprintf(str, "%s%s", MODIFY_PREFIX, file.name);
-                                connectToServer(SERVER_IP, SERVER_PORT);
-                                sendToServer(str);
-                                sleep(3);
+
+                                if (connectToServer(SERVER_IP, SERVER_PORT) == 0) {
+                                    if (sendToServer(str) == 0) {
+                                        sleep(3);
+                                    } else {
+                                        printf("Transmission failed.\n");
+                                    }
+                                } else {
+                                    printf("Connection failed.\n");
+                                }
 
                             }
                         }
@@ -197,9 +220,16 @@ int main(int argc, char **argv) {
 
                 char str[1024];
                 sprintf(str, "%s%s", DELETE_PREFIX, vector.data[i].name);
-                connectToServer(SERVER_IP, SERVER_PORT);
-                sendToServer(str);
-                sleep(3);
+
+                if (connectToServer(SERVER_IP, SERVER_PORT) == 0) {
+                    if (sendToServer(str) == 0) {
+                        sleep(3);
+                    } else {
+                        printf("Transmission failed.\n");
+                    }
+                } else {
+                    printf("Connection failed.\n");
+                }
 
                 delete(&vector, i);
                 // Subtract 1 from i so that this index is repeated.
@@ -222,9 +252,16 @@ int main(int argc, char **argv) {
 
                 char str[1024];
                 sprintf(str, "%s%s", DELETE_DIR_PREFIX, dirsVector.data[i].name);
-                connectToServer(SERVER_IP, SERVER_PORT);
-                sendToServer(str);
-                sleep(3);
+                
+                if (connectToServer(SERVER_IP, SERVER_PORT) == 0) {
+                    if (sendToServer(str) == 0) {
+                        sleep(3);
+                    } else {
+                        printf("Transmission failed.\n");
+                    }
+                } else {
+                    printf("Connection failed.\n");
+                }
 
                 delete(&dirsVector, i);
                 // Subtract 1 from i so that this index is repeated.
@@ -236,15 +273,6 @@ int main(int argc, char **argv) {
         markAllUnchecked(&dirsVector);
 
     }
-
-    // Print the contents of the vector for testing purposes.
-    printf("\nVector is of size %d\n", vector.size);
-    for (int i = 0; i < vector.size; i++) {
-        file = vector.data[i];
-        printf(" - %s : %li\n", file.name, file.modTime);
-    }
-
-    printf("Find by name 'test': %d\n", findByName(&vector, "test"));
 
     return 0;
 }
