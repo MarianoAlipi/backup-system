@@ -243,7 +243,7 @@ int main(int argc, char **argv) {
         }
 
         // Detect deleted directories.
-        for (int i = 0; i < dirsVector.size; i++) {
+        for (int i = dirsVector.size - 1; i >= 0; i--) {
 
             // Ignore the "." directory.
             if (strcmp(dirsVector.data[i].name, ".") == 0) {
