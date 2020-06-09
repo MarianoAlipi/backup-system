@@ -35,7 +35,11 @@ void receiveFile(char* file_name, int client_sockfd, char buf[MAXBUF]) {
         write(des_fd, buf, file_read_len);
         
         if (file_read_len < MAXBUF) {
-            printf("Finish receiving file.\n");
+            if (file_read_len == -1) {
+                printf("File is empty or the connection timed out.\n");
+            } else {
+               printf("Finished receiving file.\n");
+            }
             break;
         }
     }
@@ -58,7 +62,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Default: 5500
     const int PORT = atoi(argv[1]);
 
     if (PORT == 0) {
@@ -99,6 +102,11 @@ int main(int argc, char **argv) {
         // accept()
         client_sockfd = accept(server_sockfd, (struct sockaddr *)&clientaddr, &client_len);
         printf("New connection: %s\n", inet_ntoa(clientaddr.sin_addr));
+
+struct timeval tv;
+tv.tv_sec = 2;
+tv.tv_usec = 0;
+setsockopt(client_sockfd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
         // Filename
         read_len = read(client_sockfd, buf, MAXBUF);
