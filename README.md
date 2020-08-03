@@ -6,7 +6,7 @@ The client tracks files and subdirectories and sends them to the server, which r
 This program is designed to run on Linux machines.
 
 ## Files
-- **client.c**: identifies files and directories in the current path and saves them in a vector defined in **FileVector.h**. It detects creation, modification and deletion of files.
+- **client.c**: identifies files and directories in the current path and saves them in a vector. The vector structure is defined in **FileVector.h**. This program detects creation, modification and deletion of files and directories.
 - **FileVector.h**: defines a custom vector `struct` and a file `struct` to keep track of every file and subdirectory.
 - **FileSender.h**: establishes the connection to the server and sends the instructions along with the required files to do the backup.
 - **server.c**: receives instructions from the client program (**client.c**) and then receives the contents of files (for **create** and **modify** instructions) or deletes the specified file (for the **delete** instruction).
@@ -22,7 +22,7 @@ This program is designed to run on Linux machines.
    - When a tracked file's modification date changes (**modified**), update it in the vector.
 6. Send information to server.
 7. Apply changes in server.
-8. Go to step 5 until the user manually stops the program.
+8. Go to step 5 until the user manually stops the programs.
 
 ## Build instructions
 Make sure you have **gcc** installed on your **Linux** machine:
@@ -33,7 +33,7 @@ In the same path as the **Makefile** file, run:
 ```
 make
 ```
-If you don't have **make** installed, compile both files manually:
+If you don't have **make** installed, you can compile both files manually:
 ```
 gcc client.c -o client
 gcc server.c -o server
@@ -42,7 +42,7 @@ gcc server.c -o server
 ## Execution instructions
 If you are running both programs on the same computer, make sure to place the **client** executable and the **server** executable in different directories at the same hierarchy.
 For example:
-- files
+- parentDirectory
   - serverFiles
     - server (executable)
   - clientFiles
@@ -51,13 +51,13 @@ For example:
 ### Server
 Run:
 ```
-./server portNumber
+./server <portNumber>
 ```
 
 ### Client
 Run:
 ```
-./client hostname portNumber
+./client <hostname> <portNumber>
 ```
 If you are running both programs on the same computer, you can type ```localhost``` or ```127.0.0.1``` for the hostname.
 Make sure to enter the same port number for both programs.
