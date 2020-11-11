@@ -6,8 +6,8 @@ The client tracks files and subdirectories and sends them to the server, which r
 This program is designed to run on Linux machines.
 
 ## Files
-- **client.c**: identifies files and directories in the current path and saves them in a vector. The vector structure is defined in **FileVector.h**. This program detects creation, modification and deletion of files and directories.
-- **FileVector.h**: defines a custom vector `struct` and a file `struct` to keep track of every file and subdirectory.
+- **client.c**: identifies files and directories in the current path and saves them in a vector. The 'vector' structure is defined in **FileVector.h**. This program detects creation, modification and deletion of files and directories.
+- **FileVector.h**: defines a custom 'vector' `struct` and a 'file' `struct` to keep track of every file and subdirectory.
 - **FileSender.h**: establishes the connection to the server and sends the instructions along with the required files to do the backup.
 - **server.c**: receives instructions from the client program (**client.c**) and then receives the contents of files (for **create** and **modify** instructions) or deletes the specified file (for the **delete** instruction).
 
@@ -40,7 +40,7 @@ gcc server.c -o server
 ```
 
 ## Execution instructions
-If you are running both programs on the same computer, make sure to place the **client** executable and the **server** executable in different directories at the same hierarchy.
+If you are running both programs on the same computer, make sure to place the **client** executable and the **server** executable in different directories in such a way that one directory is not in a subdirectory of the other.
 For example:
 - parentDirectory
   - serverFiles
